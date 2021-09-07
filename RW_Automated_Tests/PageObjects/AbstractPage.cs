@@ -3,7 +3,10 @@ using OpenQA.Selenium;
 
 namespace RW_Automated_Tests.PageObjects
 {
-    public abstract class PageMethods
+    /// <summary>
+    /// This is an abstract class used at the stage of designing the project, can be safely deleted if necessary
+    /// </summary>
+    public abstract class DesignPage
     {
         public abstract void Search(string query, IWebElement searchInput, IWebElement submitBtn);
         public abstract void ClickLink(By by, IWebElement container);
@@ -28,5 +31,6 @@ namespace RW_Automated_Tests.PageObjects
         public abstract ICollection<string> GetTrainsSchedule(IWebDriver driver);
         public abstract bool ContainsTrainNames(IWebDriver driver);
         public abstract void ClickLogoImage(IWebElement logoImage);
+        public abstract void Navigate(IWebDriver driver, string url);
     }
 }

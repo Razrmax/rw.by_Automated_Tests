@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using OpenQA.Selenium;
@@ -6,39 +8,39 @@ using RW_Automated_Tests.PageObjects;
 
 namespace RW_Automated_Tests.Helpers
 {
-    public class PageMethodsUtils : PageMethods
+    public class PageMethods
     {
-        public override void Search(string query, IWebElement searchInput, IWebElement submitBtn)
+        protected internal void Search(string query, IWebElement searchInput, IWebElement submitBtn)
         {
             if (ElementIsVisible(searchInput)) EnterTextIntoInput(searchInput, query);
 
             if (ElementIsVisible(submitBtn)) ClickElement(submitBtn);
         }
 
-        public override void ClickLink(By by, IWebElement container)
+        protected internal void ClickLink(By by, IWebElement container)
         {
             var elementToClick = GetElement(container, by);
             elementToClick.Click();
         }
 
-        public override void ClickElement(IWebElement element)
+        protected internal void ClickElement(IWebElement element)
         {
             element.Click();
         }
 
-        public override void SwitchLanguage(string targetLanguageAbbr, IWebElement languagePanel)
+        protected internal void SwitchLanguage(string targetLanguageAbbr, IWebElement languagePanel)
         {
             var by = By.XPath("//a[contains(text(),'" + targetLanguageAbbr + "')]");
             ClickLink(by, languagePanel);
         }
 
-        public override bool ElementIsVisible(IWebElement element)
+        protected internal bool ElementIsVisible(IWebElement element)
         {
             Thread.Sleep(200);
             return element.Displayed;
         }
 
-        public override int CountItems(By by, IWebElement element)
+        protected internal int CountItems(By by, IWebElement element)
         {
             var items = GetElements(element, by);
             return items.Count;
@@ -51,7 +53,7 @@ namespace RW_Automated_Tests.Helpers
         /// <param name="elementsLocation">Location of the elements which must match</param>
         /// <param name="by">Mechanism by which to find the elements inside their location</param>
         /// <returns></returns>
-        public override bool ElementsTextMatch(HashSet<string> textToMatch, IWebElement elementsLocation, By by)
+        protected internal bool ElementsTextMatch(HashSet<string> textToMatch, IWebElement elementsLocation, By by)
         {
             var actualTextElements = ExtractTextFromElements(elementsLocation, by);
             if (actualTextElements.Count < textToMatch.Count) return false;
@@ -63,7 +65,7 @@ namespace RW_Automated_Tests.Helpers
             return textToMatch.Count == 0;
         }
 
-        public override bool CopyrightTextIsCorrect(string copyrightText, IWebElement element, By by)
+        protected internal bool CopyrightTextIsCorrect(string copyrightText, IWebElement element)
         {
             var text = element.Text;
             return text.Contains(copyrightText);
@@ -75,7 +77,7 @@ namespace RW_Automated_Tests.Helpers
         /// <param name="container">location of the elements to be extracted</param>
         /// <param name="by">delimiting tag</param>
         /// <returns></returns>
-        public override List<string> ExtractTextFromElements(IWebElement container, By by)
+        protected internal List<string> ExtractTextFromElements(IWebElement container, By by)
         {
             var elements = GetElements(container, by);
             var text = new List<string>();
@@ -94,23 +96,23 @@ namespace RW_Automated_Tests.Helpers
         /// <param name="requiredUrl"></param>
         /// <param name="driver"></param>
         /// <returns>True if actual url matches the required one</returns>
-        public override bool IsUrlCorrect(string requiredUrl, IWebDriver driver)
+        protected internal bool IsUrlCorrect(string requiredUrl, IWebDriver driver)
         {
             var actualUrl = driver.Url;
             return actualUrl == requiredUrl;
         }
 
-        public override void ClearInput(IWebElement element)
+        protected internal void ClearInput(IWebElement element)
         {
             element.Clear();
         }
 
-        public override void EnterTextIntoInput(IWebElement element, string text)
+        protected internal void EnterTextIntoInput(IWebElement element, string text)
         {
             element.SendKeys(text);
         }
 
-        public override void SearchTrains(IWebElement from, IWebElement destination, IWebElement calendar,
+        protected internal void SearchTrains(IWebElement from, IWebElement destination, IWebElement calendar,
             IWebElement targetMonth, int targetDay, IWebElement submitBtn,
             string fromName, string destinationName)
         {
@@ -121,7 +123,7 @@ namespace RW_Automated_Tests.Helpers
             ClickElement(submitBtn);
         }
 
-        public override void SelectDateFromCalendar(IWebElement targetMonth, string targetDay)
+        protected internal void SelectDateFromCalendar(IWebElement targetMonth, string targetDay)
         {
             var daysOfMonth = GetElements(targetMonth, By.TagName("td"));
             foreach (var t in daysOfMonth)
@@ -133,18 +135,18 @@ namespace RW_Automated_Tests.Helpers
                 }
         }
 
-        public override IWebElement GetElement(IWebElement container, By by)
+        protected internal IWebElement GetElement(IWebElement container, By by)
         {
             return container.FindElement(by);
         }
 
-        public override IReadOnlyCollection<IWebElement> GetElements(IWebElement container, By by)
+        protected internal IReadOnlyCollection<IWebElement> GetElements(IWebElement container, By by)
         {
             var elements = container.FindElements(by);
             return elements;
         }
 
-        public override ICollection<string> GetTrainsSchedule(IWebDriver driver)
+        protected internal ICollection<string> GetTrainsSchedule(IWebDriver driver)
         {
             //var schedules = GetElements(scheduleTotal, By.XPath("//div[@class='sch - table__row']"));
             var departureStation = driver.FindElements(By.XPath("//div[@class='sch-table__station train-from-name']"));
@@ -158,7 +160,7 @@ namespace RW_Automated_Tests.Helpers
             return schedulesText;
         }
 
-        public override bool ContainsTrainNames(IWebDriver driver)
+        protected internal bool ContainsTrainNames(IWebDriver driver)
         {
             var trainNumbers = driver.FindElements(By.XPath("//span[@class='train-number']"));
             var trainNames = driver.FindElements(By.XPath("//span[@class='train-route']"));
@@ -169,10 +171,37 @@ namespace RW_Automated_Tests.Helpers
             return true;
         }
 
-        public override void ClickLogoImage(IWebElement logoImage)
+        protected internal void ClickLogoImage(IWebElement logoImage)
         {
             Thread.Sleep(100);
             ClickElement(logoImage);
+        }
+
+        protected internal void Navigate(IWebDriver driver, string url)
+        {
+            driver.Navigate().GoToUrl(url);
+        }
+
+        protected internal static string GenerateGibberish(int length)
+        {
+            var random = new Random();
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        protected internal static bool DisplayResults(ICollection<string> results)
+        {
+            try
+            {
+                foreach (var t in results) Debug.WriteLine(t);
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }

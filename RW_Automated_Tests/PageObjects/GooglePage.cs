@@ -10,7 +10,7 @@ namespace RW_Automated_Tests.PageObjects
         {
             Driver = driver;
             PageFactory.InitElements(driver, this);
-            PageMethodsUtils = new PageMethodsUtils();
+            PageMethods = new PageMethods();
         }
 
         private IWebDriver Driver { get; }
@@ -24,7 +24,7 @@ namespace RW_Automated_Tests.PageObjects
         [FindsBy(How = How.Id, Using = "search")]
         private IWebElement ResultsPanel { get; set; }
 
-        private PageMethodsUtils PageMethodsUtils { get; }
+        private PageMethods PageMethods { get; }
 
         public void Navigate(string url)
         {
@@ -33,17 +33,17 @@ namespace RW_Automated_Tests.PageObjects
 
         public void Search(string query)
         {
-            PageMethodsUtils.Search(query, SearchInput, SubmitBtn);
+            PageMethods.Search(query, SearchInput, SubmitBtn);
         }
 
         public void ClickLink(string partialLink)
         {
-            PageMethodsUtils.ClickLink(By.XPath("//a[contains(@href, '" + partialLink + "')]"), ResultsPanel);
+            PageMethods.ClickLink(By.XPath("//a[contains(@href, '" + partialLink + "')]"), ResultsPanel);
         }
 
         public bool PageIsLoaded(string url)
         {
-            var elementIsLoaded = PageMethodsUtils.IsUrlCorrect(url, Driver);
+            var elementIsLoaded = PageMethods.IsUrlCorrect(url, Driver);
             return elementIsLoaded;
         }
     }

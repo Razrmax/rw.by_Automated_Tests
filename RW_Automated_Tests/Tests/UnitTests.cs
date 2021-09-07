@@ -1,27 +1,50 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing.Text;
 using System.Linq;
 using NUnit.Framework;
 using OpenQA.Selenium;
 using RW_Automated_Tests.Helpers;
 using RW_Automated_Tests.PageObjects;
 
-namespace RW_Automated_Tests.Unit_Tests
+namespace RW_Automated_Tests.Tests
 {
-    public class RailWaySiteTests
+    public class UnitTests
     {
         private string _baseUrl;
-
-        private string _copyrightText;
         private IWebDriver _driver;
-        private HashSet<string> _topIndexMenuButtonsNames;
 
         [SetUp]
         public void Setup()
         {
             _driver = DriverFactory.Create();
             _baseUrl = "https:\\www.rw.by";
+        }
+
+        /// <summary>
+        ///     Performs 1st sequence of tests:
+        ///     a) opens browser and loads google.com
+        ///     b) in the search input field, types in query "белорусская железная дорога"
+        ///     c) clicks on Google search button to begin search
+        ///     d) in the Google search results page, finds and clicks on a link which contains the https://www.rw.by/ partial
+        ///     address
+        ///     e) verifies that the page has been fully loaded by locating a copyright(c) web element
+        ///     f) closes the driver and disposes it
+        /// </summary>
+        [Test]
+        public void OpenGoogleFindAndLoadRailroadSite()
+        {
+            //Arrange
+            string _searchQuery = "белорусская железная дорога";
+            _baseUrl = "https://google.com";
+            //Act
+            var currentPage = new GooglePage(_driver);
+            currentPage.Navigate(_baseUrl);
+            currentPage.Search(_searchQuery);
+            currentPage.ClickLink("https://www.rw.by/");
+            //Assert
+            Assert.IsTrue(currentPage.PageIsLoaded("https://www.rw.by/be/"));
         }
 
         /// <summary>
@@ -41,26 +64,16 @@ namespace RW_Automated_Tests.Unit_Tests
         public void RailWaySiteMainPageTest()
         {
             //Arrange
-            var currentPage = new RailwayPage(_driver);
+            var currentPage = new RailwayMainPage(_driver);
             currentPage.Navigate(_baseUrl);
-            _topIndexMenuButtonsNames = new HashSet<string>
+            var _topIndexMenuButtonsNames = new HashSet<string>
                 {"press center", "tickets", "passenger services", "freight", "corporate"};
-            _copyrightText = "© 2021 Belarusian Railway";
+            var _copyrightText = "© 2021 Belarusian Railway";
             //Assert
-            try
-            {
-                Assert.IsTrue(currentPage.SwitchLanguage("ENG"));
-                Assert.IsTrue(currentPage.NewsArticlesAreDisplayed(4));
-                Assert.IsTrue(currentPage.TopIndexButtonsMatch(_topIndexMenuButtonsNames));
-                Assert.IsTrue(currentPage.CopyrightTextIsCorrect(_copyrightText));
-            }
-            catch (Exception)
-            {
-                DriverFactory.Close(_driver);
-                throw;
-            }
-
-            DriverFactory.Close(_driver);
+            Assert.IsTrue(currentPage.SwitchLanguage("ENG"));
+            Assert.IsTrue(currentPage.NewsArticlesAreDisplayed(4));
+            Assert.IsTrue(currentPage.TopIndexButtonsMatch(_topIndexMenuButtonsNames));
+            Assert.IsTrue(currentPage.CopyrightTextIsCorrect(_copyrightText));
         }
 
         /// <summary>
@@ -80,29 +93,18 @@ namespace RW_Automated_Tests.Unit_Tests
             //Arrange
             var requiredSearchResponse = "К сожалению, на ваш поисковый запрос ничего не найдено.";
             var correctQuery = "Санкт-Петербург";
-            var gibberishQuerry = GenerateGibberish(20);
-            var currentPage = new RailwayPage(_driver);
+            var gibberishQuerry = PageMethods.GenerateGibberish(20);
+            var currentPage = new RailwaySearchResultsPage(_driver);
+            //Act
             currentPage.Navigate(_baseUrl);
+            currentPage.Search(gibberishQuerry);
             //Assert
-            try
-            {
-                currentPage.Search(gibberishQuerry);
-                Assert.IsTrue(currentPage.IsUrlCorrect("https://www.rw.by/search/?s=Y&q=" + gibberishQuerry + ""));
-                Assert.IsTrue(currentPage.SearchResultDisplaysRequiredResponse(requiredSearchResponse));
-                currentPage.ClearSearchInput();
-                currentPage.RepeatSearch(correctQuery);
-                Assert.AreEqual(currentPage.CountSearchResults(), 15);
-                var searchResultsText = currentPage.GetSearchResultsText();
-                DisplayResults(searchResultsText);
-                Console.WriteLine();
-            }
-            catch (Exception)
-            {
-                DriverFactory.Close(_driver);
-                throw;
-            }
-
-            DriverFactory.Close(_driver);
+            Assert.IsTrue(currentPage.IsUrlCorrect("https://www.rw.by/search/?s=Y&q=" + gibberishQuerry + ""));
+            Assert.IsTrue(currentPage.SearchResultDisplaysRequiredResponse(requiredSearchResponse));
+            currentPage.ClearSearchInput();
+            currentPage.RepeatSearch(correctQuery);
+            Assert.AreEqual(currentPage.CountSearchResults(), 15);
+            Assert.IsTrue(PageMethods.DisplayResults(currentPage.GetSearchResultsText()));
         }
 
         /// <summary>
@@ -126,47 +128,21 @@ namespace RW_Automated_Tests.Unit_Tests
             //Arrange
             var fromLocaion = "Брест";
             var destination = "Минск";
-            var currentPage = new RailwayPage(_driver);
+            var currentPage = new RailwayCalendarPage(_driver);
             var daysFromToday = 30;
             currentPage.Navigate(_baseUrl);
             //Assert
-            try
-            {
-                currentPage.SearchTrains(fromLocaion, destination, daysFromToday);
-                var trainsSchedule = currentPage.GetTrainsSchedule();
-                Assert.IsTrue(DisplayResults(trainsSchedule));
-                Assert.IsTrue(currentPage.ContainsTrainNames());
-                currentPage.ClickLogo();
-            }
-            catch (Exception)
-            {
-                DriverFactory.Close(_driver);
-                throw;
-            }
+            currentPage.SearchTrains(fromLocaion, destination, daysFromToday);
+            var trainsSchedule = currentPage.GetTrainsSchedule();
+            Assert.IsTrue(PageMethods.DisplayResults(trainsSchedule));
+            Assert.IsTrue(currentPage.ContainsTrainNames());
+            currentPage.ClickLogo();
+        }
 
+        [TearDown]
+        public void TearDown()
+        {
             DriverFactory.Close(_driver);
-        }
-
-        private string GenerateGibberish(int length)
-        {
-            var random = new Random();
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            return new string(Enumerable.Repeat(chars, length)
-                .Select(s => s[random.Next(s.Length)]).ToArray());
-        }
-
-        private bool DisplayResults(ICollection<string> results)
-        {
-            try
-            {
-                foreach (var t in results) Debug.WriteLine(t);
-
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
         }
     }
 }
