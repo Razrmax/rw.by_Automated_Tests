@@ -40,7 +40,7 @@ namespace RW_Automated_Tests.PageObjects
 
         protected internal void Search(string query)
         {
-            PageMethods.Search(query, SearchInput, SiteSearchSubmitBtn);
+            PageMethods.Search(Driver, query, SearchInput, SiteSearchSubmitBtn);
         }
 
         protected internal bool IsUrlCorrect(string requiredUrl)
@@ -55,7 +55,7 @@ namespace RW_Automated_Tests.PageObjects
 
         protected internal void RepeatSearch(string query)
         {
-            PageMethods.Search(query, MiddleSearchInput, SiteSearchSubmitBtn);
+            PageMethods.Search(Driver, query, MiddleSearchInput, SiteSearchSubmitBtn);
         }
 
         protected internal int CountSearchResults()

@@ -12,7 +12,6 @@ namespace RW_Automated_Tests.Helpers
         {
             IWebDriver driver;
             var browser = ConfigurationManager.AppSettings["Browser"];
-            //var browser = "chrome";
 
             switch (browser)
             {

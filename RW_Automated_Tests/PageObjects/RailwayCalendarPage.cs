@@ -30,7 +30,7 @@ namespace RW_Automated_Tests.PageObjects
         [FindsBy(How = How.XPath, Using = "//input[@id='yDate']")]
         private IWebElement CalendarInput { get; set; }
 
-        [FindsBy(How = How.XPath, Using = "//span[@class='std-button']//input[@type='submit']")]
+        [FindsBy(How = How.XPath, Using = "//span[@class='std-button']/input")]
         private IWebElement ScheduleSearchBtn { get; set; }
 
         [FindsBy(How = How.XPath, Using = "//div[@class='ui-datepicker-group ui-datepicker-group-first']")]
@@ -39,11 +39,22 @@ namespace RW_Automated_Tests.PageObjects
         [FindsBy(How = How.XPath, Using = "//div[@class='ui-datepicker-group ui-datepicker-group-middle']")]
         private IWebElement NextMonth { get; set; }
 
-        [FindsBy(How = How.XPath, Using = "//div[@class='sch-table__row']")]
-        private IWebElement TrainsSchedule { get; set; }
+        [FindsBy(How = How.XPath, Using = "//div[@class='sch-title__title h2']")]
+        private IWebElement TrainNameDiv { get; set; }
+
+        [FindsBy(How = How.XPath, Using = "//span[@class='sch-title__train-num']")]
+        private IWebElement TrainNumberDiv { get; set; }
+
+        [FindsBy(How = How.XPath, Using = "//div[@class='sch-title__descr']")]
+        private IWebElement TravelingDaysInfoLocation { get; set; }
 
         [FindsBy(How = How.XPath, Using = "//img[@title='БелЖД']")]
         private IWebElement LogoImage { get; set; }
+
+        [FindsBy(How = How.XPath, Using = "//a[@class='sch-table__route']")]
+        private IWebElement FirstLinkLocation { get; set; }
+
+
 
         protected internal void Navigate(string url)
         {
@@ -56,7 +67,7 @@ namespace RW_Automated_Tests.PageObjects
             var futureDate = today.AddDays(daysFromToday);
             var targetDay = futureDate.Day;
             var targetMonth = futureDate.Month == today.Month ? CurrentMonth : NextMonth;
-            PageMethods.SearchTrains(FromInput, DestinationInput, CalendarInput, targetMonth, targetDay,
+            PageMethods.SearchTrains(Driver,FromInput, DestinationInput, CalendarInput, targetMonth, targetDay,
                 ScheduleSearchBtn, fromLocation, destination);
         }
 
@@ -65,14 +76,22 @@ namespace RW_Automated_Tests.PageObjects
             return PageMethods.GetTrainsSchedule(Driver);
         }
 
-        protected internal bool ContainsTrainNames()
+        protected internal bool FirstLinkInTrainSearchContainsInformation()
         {
-            return PageMethods.ContainsTrainNames(Driver);
+            FirstLinkLocation.Click();
+            bool containsTrainNames = PageMethods.ContainsTextualInformation(TrainNameDiv);
+            bool containsTrainNumbers = PageMethods.ContainsTextualInformation(TrainNumberDiv);
+            bool containsTravelingDays = PageMethods.ContainsTextualInformation(TravelingDaysInfoLocation); 
+
+            return containsTrainNames && containsTrainNumbers;
         }
 
-        protected internal void ClickLogo()
+        protected internal bool ClickLogoReturnsToHomepage()
         {
-            PageMethods.ClickLogoImage(LogoImage);
+            string homeUrl = "https://www.rw.by/";
+            PageMethods.ClickElement(Driver, LogoImage);
+            bool logoImageReturnsToHomepage = PageMethods.IsUrlCorrect(homeUrl, Driver);
+            return logoImageReturnsToHomepage;
         }
     }
 }
