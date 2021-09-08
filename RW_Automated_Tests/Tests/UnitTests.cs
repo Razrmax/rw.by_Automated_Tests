@@ -33,7 +33,7 @@ namespace RW_Automated_Tests.Tests
         ///     f) closes the driver and disposes it
         /// </summary>
         [Test]
-        public void OpenGoogleFindAndLoadRailroadSite()
+        public void OpenGoogleFindAndLoadRailwaySite()
         {
             //Arrange
             string _searchQuery = "белорусская железная дорога";
