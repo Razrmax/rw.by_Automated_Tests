@@ -33,12 +33,12 @@ namespace RW_Automated_Tests.PageObjects
 
         public void Search(string query)
         {
-            PageMethods.Search(query, SearchInput, SubmitBtn);
+            PageMethods.Search(Driver, query, SearchInput, SubmitBtn);
         }
 
-        public void ClickLink(string partialLink)
+        public void ClickFirstLink()
         {
-            PageMethods.ClickLink(By.XPath("//a[contains(@href, '" + partialLink + "')]"), ResultsPanel);
+            PageMethods.ClickLink(By.XPath("(//h3)[1]/../../a"), ResultsPanel);
         }
 
         public bool PageIsLoaded(string url)

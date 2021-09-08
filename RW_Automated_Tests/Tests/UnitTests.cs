@@ -42,7 +42,7 @@ namespace RW_Automated_Tests.Tests
             var currentPage = new GooglePage(_driver);
             currentPage.Navigate(_baseUrl);
             currentPage.Search(_searchQuery);
-            currentPage.ClickLink("https://www.rw.by/");
+            currentPage.ClickFirstLink();
             //Assert
             Assert.IsTrue(currentPage.PageIsLoaded("https://www.rw.by/be/"));
         }
@@ -77,38 +77,51 @@ namespace RW_Automated_Tests.Tests
         }
 
         /// <summary>
-        ///     Performs the 2nd sequence of tests. Tests search functionality of the Railway site:
         ///     a. Open site
-        ///     b. Type in "Поиск" input 20 random symbols (they should be different for each execution)
+        ///     b. Type in "Поиск" 20 random symbols (they should be different for each execution)
         ///     c. Check, that address in browser changed to the correct one
         ///     d. Check, that text "К сожалению, на ваш поисковый запрос ничего не найдено." is displayed on a page
-        ///     e. Clear entered on step b value and enter “Санкт-Петербург” instead
+        ///     
+        /// </summary>
+        [Test]
+        public void SiteSearchTestWithGibberishQuery()
+        {
+            //Arrange
+            var requiredSearchResponse = "К сожалению, на ваш поисковый запрос ничего не найдено.";
+            var gibberishQuery = PageMethods.GenerateGibberish(20);
+            var currentPage = new RailwaySearchResultsPage(_driver);
+            //Act
+            currentPage.Navigate(_baseUrl);
+            currentPage.Search(gibberishQuery);
+            //Assert
+            Assert.IsTrue(currentPage.IsUrlCorrect("https://www.rw.by/search/?s=Y&q=" + gibberishQuery + ""));
+            Assert.IsTrue(currentPage.SearchResultDisplaysRequiredResponse(requiredSearchResponse));
+        }
+
+        /// <summary>
+        ///     a. from the search result page, enter “Санкт-Петербург”
         ///     f. Click "Найти"
         ///     g. Check, that 15 links to the articles are displayed on a screen
         ///     h. Write the text from above mentioned links into the console
         /// </summary>
         [Test]
-        public void RailWaySiteSearchTest()
+        public void SiteSearchTestWithCorrectQuery()
         {
             //Arrange
-            var requiredSearchResponse = "К сожалению, на ваш поисковый запрос ничего не найдено.";
             var correctQuery = "Санкт-Петербург";
-            var gibberishQuerry = PageMethods.GenerateGibberish(20);
+            _baseUrl = "https://www.rw.by/search/?s=Y&q=avgfdgvsfgsgvfdsggfdwgfgsggfdg";
             var currentPage = new RailwaySearchResultsPage(_driver);
             //Act
             currentPage.Navigate(_baseUrl);
-            currentPage.Search(gibberishQuerry);
-            //Assert
-            Assert.IsTrue(currentPage.IsUrlCorrect("https://www.rw.by/search/?s=Y&q=" + gibberishQuerry + ""));
-            Assert.IsTrue(currentPage.SearchResultDisplaysRequiredResponse(requiredSearchResponse));
             currentPage.ClearSearchInput();
             currentPage.RepeatSearch(correctQuery);
+            //Assert
             Assert.AreEqual(currentPage.CountSearchResults(), 15);
             Assert.IsTrue(PageMethods.DisplayResults(currentPage.GetSearchResultsText()));
         }
 
         /// <summary>
-        ///     Test the calendar functionality:
+        ///     Test the train search functionality:
         ///     a.	Open site
         ///     b.	Type in "Откуда" and "Куда" some valid locations
         ///     c.	Click on calendar button, and select +5 days from today
@@ -123,20 +136,40 @@ namespace RW_Automated_Tests.Tests
         ///     j.	Check that main page loaded fine.
         /// </summary>
         [Test]
-        public void RailWaySiteCalendarTest()
+        public void TrainsSearchTest()
         {
             //Arrange
             var fromLocaion = "Брест";
             var destination = "Минск";
             var currentPage = new RailwayCalendarPage(_driver);
             var daysFromToday = 30;
+            
+            //Act
             currentPage.Navigate(_baseUrl);
-            //Assert
             currentPage.SearchTrains(fromLocaion, destination, daysFromToday);
             var trainsSchedule = currentPage.GetTrainsSchedule();
+            //Assert
             Assert.IsTrue(PageMethods.DisplayResults(trainsSchedule));
-            Assert.IsTrue(currentPage.ContainsTrainNames());
-            currentPage.ClickLogo();
+            Assert.IsTrue(currentPage.FirstLinkInTrainSearchContainsInformation());
+        }
+
+        /// <summary>
+        ///  i.	Return to the main page of site by clicking on the site’s logo
+        ///  j.	Check that main page loaded fine.
+        /// </summary>
+        [Test]
+        public void ClickingOnLogoFromSchedulePageLoadsMainPage()
+        {
+            //Arrange
+            var currentPage = new RailwayCalendarPage(_driver);
+            _baseUrl =
+                "https://pass.rw.by/ru/route/?from=%D0%91%D1%80%D0%B5%D1%81%D1%82&from_exp=2100200&from_esr=130007&to=%D0%9C%D0%B8%D0%BD%D1%81%D0%BA&to_exp=2100000&to_esr=140210&date=&type=1";
+
+            //Act
+            currentPage.Navigate(_baseUrl);
+            var clickingOnLogoReturnsToHomepage = currentPage.ClickLogoReturnsToHomepage();
+            //Assert
+            Assert.IsFalse(clickingOnLogoReturnsToHomepage);
         }
 
         [TearDown]

@@ -1,20 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
 using RW_Automated_Tests.PageObjects;
+using ExpectedConditions = SeleniumExtras.WaitHelpers.ExpectedConditions;
 
 namespace RW_Automated_Tests.Helpers
 {
     public class PageMethods
     {
-        protected internal void Search(string query, IWebElement searchInput, IWebElement submitBtn)
+        protected internal void Search(IWebDriver driver, string query, IWebElement searchInput, IWebElement submitBtn)
         {
-            if (ElementIsVisible(searchInput)) EnterTextIntoInput(searchInput, query);
-
-            if (ElementIsVisible(submitBtn)) ClickElement(submitBtn);
+            if (ElementIsVisible(driver, searchInput)) EnterTextIntoInput(searchInput, query);
+           
+            if (ElementIsVisible(driver, submitBtn)) ClickElement(driver, submitBtn);
         }
 
         protected internal void ClickLink(By by, IWebElement container)
@@ -23,9 +26,13 @@ namespace RW_Automated_Tests.Helpers
             elementToClick.Click();
         }
 
-        protected internal void ClickElement(IWebElement element)
+        protected internal void ClickElement(IWebDriver driver, IWebElement element)
         {
-            element.Click();
+
+            if (ElementIsVisible(driver, element))
+            {
+                element.Click();
+            }
         }
 
         protected internal void SwitchLanguage(string targetLanguageAbbr, IWebElement languagePanel)
@@ -34,10 +41,21 @@ namespace RW_Automated_Tests.Helpers
             ClickLink(by, languagePanel);
         }
 
-        protected internal bool ElementIsVisible(IWebElement element)
+        protected internal bool ElementIsVisible(IWebDriver driver, IWebElement element)
         {
-            Thread.Sleep(200);
-            return element.Displayed;
+            var elementToBeVisible =
+                new ReadOnlyCollection<IWebElement>(new List<IWebElement>() { element });
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+            try
+            {
+                wait.Until(ExpectedConditions.VisibilityOfAllElementsLocatedBy(elementToBeVisible));
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         protected internal int CountItems(By by, IWebElement element)
@@ -112,25 +130,25 @@ namespace RW_Automated_Tests.Helpers
             element.SendKeys(text);
         }
 
-        protected internal void SearchTrains(IWebElement from, IWebElement destination, IWebElement calendar,
+        protected internal void SearchTrains(IWebDriver driver, IWebElement from, IWebElement destination, IWebElement calendar,
             IWebElement targetMonth, int targetDay, IWebElement submitBtn,
             string fromName, string destinationName)
         {
             EnterTextIntoInput(from, fromName);
             EnterTextIntoInput(destination, destinationName);
-            ClickElement(calendar);
-            SelectDateFromCalendar(targetMonth, targetDay.ToString());
-            ClickElement(submitBtn);
+            ClickElement(driver, calendar);
+            SelectDateFromCalendar(driver, targetMonth, targetDay.ToString());
+            submitBtn.Click();
         }
 
-        protected internal void SelectDateFromCalendar(IWebElement targetMonth, string targetDay)
+        protected internal void SelectDateFromCalendar(IWebDriver driver, IWebElement targetMonth, string targetDay)
         {
             var daysOfMonth = GetElements(targetMonth, By.TagName("td"));
             foreach (var t in daysOfMonth)
                 if (t.Text == targetDay)
                 {
                     var element = GetElement(t, By.LinkText(targetDay));
-                    ClickElement(element);
+                    ClickElement(driver, element);
                     break;
                 }
         }
@@ -148,7 +166,6 @@ namespace RW_Automated_Tests.Helpers
 
         protected internal ICollection<string> GetTrainsSchedule(IWebDriver driver)
         {
-            //var schedules = GetElements(scheduleTotal, By.XPath("//div[@class='sch - table__row']"));
             var departureStation = driver.FindElements(By.XPath("//div[@class='sch-table__station train-from-name']"));
             var arrivalStation = driver.FindElements(By.XPath("//div[@class='sch-table__station train-to-name']"));
             var departureTime = driver.FindElements(By.XPath("//div[@class='sch-table__time train-from-time']"));
@@ -160,21 +177,9 @@ namespace RW_Automated_Tests.Helpers
             return schedulesText;
         }
 
-        protected internal bool ContainsTrainNames(IWebDriver driver)
+        protected internal bool ContainsTextualInformation(IWebElement trainName)
         {
-            var trainNumbers = driver.FindElements(By.XPath("//span[@class='train-number']"));
-            var trainNames = driver.FindElements(By.XPath("//span[@class='train-route']"));
-            for (var i = 0; i < trainNumbers.Count; i++)
-                if (trainNumbers.ElementAt(i).Text == "" || trainNames.ElementAt(i).Text == "")
-                    return false;
-
-            return true;
-        }
-
-        protected internal void ClickLogoImage(IWebElement logoImage)
-        {
-            Thread.Sleep(100);
-            ClickElement(logoImage);
+            return trainName.Text != "";
         }
 
         protected internal void Navigate(IWebDriver driver, string url)
