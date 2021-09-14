@@ -1,52 +1,65 @@
-﻿using System.Configuration;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Runtime.CompilerServices;
 using Microsoft.Edge.SeleniumTools;
+using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Firefox;
+using OpenQA.Selenium.Opera;
 
 namespace RW_Automated_Tests.Helpers
 {
     public class DriverFactory
     {
-        public static IWebDriver Create()
+        protected internal static IWebDriver Create(string browser)
         {
+            var browsers = SelectBrowserToRunWith();
             IWebDriver driver;
-            var browser = ConfigurationManager.AppSettings["Browser"];
 
             switch (browser)
             {
                 case "IE":
-                    var options = new EdgeOptions();
-                    options.UseChromium = true;
-                    //options.AddArgument("--allow-running-insecure-content");
-                    //options.AddArgument("--start - maximized");
-                    driver = new EdgeDriver(options);
-                    driver.Manage().Window.Maximize();
+                    var edgeOptions = new EdgeOptions();
+                    edgeOptions.UseChromium = true;
+                    driver = new EdgeDriver(edgeOptions);
                     break;
                 case "Firefox":
                     var firefoxOptions = new FirefoxOptions();
                     firefoxOptions.AcceptInsecureCertificates = true;
                     var geckoService = FirefoxDriverService.CreateDefaultService();
                     geckoService.Host = "::1";
-                    driver = new FirefoxDriver(geckoService, firefoxOptions);
-                    driver.Manage().Window.Maximize();
+                    driver = new FirefoxDriver(firefoxOptions);
+                    break;
+                case "Opera":
+                    var operaOptions = new OperaOptions();
+                    operaOptions.AcceptInsecureCertificates = true;
+                    driver = new OperaDriver(operaOptions);
                     break;
                 default:
                     var chromeOptions = new ChromeOptions();
-                    //chromeOptions.AddArgument("--allow-running-insecure-content");
-                    //chromeOptions.AddArgument("--start - maximized");
                     driver = new ChromeDriver(chromeOptions);
-                    driver.Manage().Window.Maximize();
                     break;
             }
 
+            driver.Manage().Window.Maximize();
             return driver;
         }
 
-        public static void Close(IWebDriver driver)
+        protected internal static void Close(IWebDriver driver)
         {
             driver.Quit();
             driver.Dispose();
+        }
+
+        protected internal static IEnumerable<string> SelectBrowserToRunWith()
+        {
+            var browsers = ConfigurationManager.AppSettings["Browsers"].Split(",");
+            foreach (var b in browsers)
+            {
+                yield return b;
+            }
         }
     }
 }

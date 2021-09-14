@@ -43,11 +43,6 @@ namespace RW_Automated_Tests.PageObjects
             PageMethods.Search(Driver, query, SearchInput, SiteSearchSubmitBtn);
         }
 
-        protected internal bool IsUrlCorrect(string requiredUrl)
-        {
-            return PageMethods.IsUrlCorrect(requiredUrl, Driver);
-        }
-
         protected internal void ClearSearchInput()
         {
             PageMethods.ClearInput(MiddleSearchInput);
@@ -72,13 +67,19 @@ namespace RW_Automated_Tests.PageObjects
 
         protected internal void ClickLink(string partialLink)
         {
-            PageMethods.ClickLink(By.XPath("//a[contains(@href, '" + partialLink + "')]"), SearchResultsPanel);
+            PageMethods.ClickLink(Driver, By.XPath("//a[contains(@href, '" + partialLink + "')]"), SearchResultsPanel);
         }
 
-        protected internal bool SearchResultDisplaysRequiredResponse(string requiredResponse)
+        protected internal bool? SearchResultDisplaysRequiredResponse(string requiredResponse)
         {
             var actualResponse = SearchResultsPanel.Text;
             return actualResponse == requiredResponse;
+        }
+
+        protected internal bool? IsUrlCorrect(string requiredUrl)
+        {
+            bool urlIsCorrect = requiredUrl == Driver.Url;
+            return urlIsCorrect;
         }
     }
 }

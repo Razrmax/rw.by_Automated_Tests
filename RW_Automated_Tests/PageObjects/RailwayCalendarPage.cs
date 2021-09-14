@@ -54,6 +54,9 @@ namespace RW_Automated_Tests.PageObjects
         [FindsBy(How = How.XPath, Using = "//a[@class='sch-table__route']")]
         private IWebElement FirstLinkLocation { get; set; }
 
+        [FindsBy(How = How.ClassName, Using = "copyright")]
+        private IWebElement CopyrightPanel { get; set; }
+
 
 
         protected internal void Navigate(string url)
@@ -76,21 +79,20 @@ namespace RW_Automated_Tests.PageObjects
             return PageMethods.GetTrainsSchedule(Driver);
         }
 
-        protected internal bool FirstLinkInTrainSearchContainsInformation()
+        protected internal bool FirstLinkInTrainSearchContainsRequiredInformation()
         {
             FirstLinkLocation.Click();
             bool containsTrainNames = PageMethods.ContainsTextualInformation(TrainNameDiv);
             bool containsTrainNumbers = PageMethods.ContainsTextualInformation(TrainNumberDiv);
             bool containsTravelingDays = PageMethods.ContainsTextualInformation(TravelingDaysInfoLocation); 
 
-            return containsTrainNames && containsTrainNumbers;
+            return containsTrainNames && containsTrainNumbers && containsTravelingDays;
         }
 
         protected internal bool ClickLogoReturnsToHomepage()
         {
-            string homeUrl = "https://www.rw.by/";
             PageMethods.ClickElement(Driver, LogoImage);
-            bool logoImageReturnsToHomepage = PageMethods.IsUrlCorrect(homeUrl, Driver);
+            bool logoImageReturnsToHomepage = PageMethods.PageIsLoaded(Driver, CopyrightPanel);
             return logoImageReturnsToHomepage;
         }
     }
