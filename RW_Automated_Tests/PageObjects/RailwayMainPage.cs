@@ -39,7 +39,7 @@ namespace RW_Automated_Tests.PageObjects
 
         public bool SwitchLanguage(string targetLanguageAbbr)
         {
-            PageMethods.SwitchLanguage(targetLanguageAbbr, LanguagePanel);
+            PageMethods.SwitchLanguage(Driver, targetLanguageAbbr, LanguagePanel);
             Thread.Sleep(100);
             var currentUrl = Driver.Url;
             return targetLanguageAbbr switch

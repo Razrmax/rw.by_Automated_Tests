@@ -15,15 +15,17 @@ namespace RW_Automated_Tests.Helpers
     {
         protected internal void Search(IWebDriver driver, string query, IWebElement searchInput, IWebElement submitBtn)
         {
-            if (ElementIsVisible(driver, searchInput)) EnterTextIntoInput(searchInput, query);
-           
-            if (ElementIsVisible(driver, submitBtn)) ClickElement(driver, submitBtn);
+            EnterTextIntoInput(driver, searchInput, query);
+            ClickElement(driver, submitBtn);
         }
 
-        protected internal void ClickLink(By by, IWebElement container)
+        protected internal void ClickLink(IWebDriver driver, By by, IWebElement container)
         {
-            var elementToClick = GetElement(container, by);
-            elementToClick.Click();
+            if (ElementIsVisible(driver, container))
+            {
+                var elementToClick = GetElement(container, by);
+                elementToClick.Click();
+            }
         }
 
         protected internal void ClickElement(IWebDriver driver, IWebElement element)
@@ -35,13 +37,13 @@ namespace RW_Automated_Tests.Helpers
             }
         }
 
-        protected internal void SwitchLanguage(string targetLanguageAbbr, IWebElement languagePanel)
+        protected internal void SwitchLanguage(IWebDriver driver, string targetLanguageAbbr, IWebElement languagePanel)
         {
             var by = By.XPath("//a[contains(text(),'" + targetLanguageAbbr + "')]");
-            ClickLink(by, languagePanel);
+            ClickLink(driver, by, languagePanel);
         }
 
-        protected internal bool ElementIsVisible(IWebDriver driver, IWebElement element)
+        private bool ElementIsVisible(IWebDriver driver, IWebElement element)
         {
             var elementToBeVisible =
                 new ReadOnlyCollection<IWebElement>(new List<IWebElement>() { element });
@@ -51,10 +53,9 @@ namespace RW_Automated_Tests.Helpers
                 wait.Until(ExpectedConditions.VisibilityOfAllElementsLocatedBy(elementToBeVisible));
                 return true;
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine(e);
-                throw;
+                return false;
             }
         }
 
@@ -90,7 +91,7 @@ namespace RW_Automated_Tests.Helpers
         }
 
         /// <summary>
-        ///     Extracts the text located inside the element found with specific By locator.
+        ///     Extracts the text located inside the inputElement found with specific By locator.
         /// </summary>
         /// <param name="container">location of the elements to be extracted</param>
         /// <param name="by">delimiting tag</param>
@@ -109,15 +110,15 @@ namespace RW_Automated_Tests.Helpers
         }
 
         /// <summary>
-        ///     Checks that the required url matches the actual url.
+        ///     Checks that the required url has been succesfully loaded by verifying that this page's specified elements are visible.
         /// </summary>
-        /// <param name="requiredUrl"></param>
-        /// <param name="driver"></param>
-        /// <returns>True if actual url matches the required one</returns>
-        protected internal bool IsUrlCorrect(string requiredUrl, IWebDriver driver)
+        /// <param name="driver">IWebdriver instance</param>
+        /// <param name="elementToCheck">The inputElement that must be visible to confirm that the page has been loaded</param>
+        /// <returns>True if the page contains visible inputElement, false otherwise</returns>
+        protected internal bool PageIsLoaded(IWebDriver driver, IWebElement elementToCheck)
         {
-            var actualUrl = driver.Url;
-            return actualUrl == requiredUrl;
+            if (ElementIsVisible(driver, elementToCheck)) return true;
+            return false;
         }
 
         protected internal void ClearInput(IWebElement element)
@@ -125,17 +126,17 @@ namespace RW_Automated_Tests.Helpers
             element.Clear();
         }
 
-        protected internal void EnterTextIntoInput(IWebElement element, string text)
+        protected internal void EnterTextIntoInput(IWebDriver driver, IWebElement inputElement, string text)
         {
-            element.SendKeys(text);
+            if (ElementIsVisible(driver, inputElement)) inputElement.SendKeys(text);
         }
 
         protected internal void SearchTrains(IWebDriver driver, IWebElement from, IWebElement destination, IWebElement calendar,
             IWebElement targetMonth, int targetDay, IWebElement submitBtn,
             string fromName, string destinationName)
         {
-            EnterTextIntoInput(from, fromName);
-            EnterTextIntoInput(destination, destinationName);
+            EnterTextIntoInput(driver, from, fromName);
+            EnterTextIntoInput(driver, destination, destinationName);
             ClickElement(driver, calendar);
             SelectDateFromCalendar(driver, targetMonth, targetDay.ToString());
             submitBtn.Click();
@@ -153,12 +154,12 @@ namespace RW_Automated_Tests.Helpers
                 }
         }
 
-        protected internal IWebElement GetElement(IWebElement container, By by)
+        private IWebElement GetElement(IWebElement container, By by)
         {
             return container.FindElement(by);
         }
 
-        protected internal IReadOnlyCollection<IWebElement> GetElements(IWebElement container, By by)
+        private IReadOnlyCollection<IWebElement> GetElements(IWebElement container, By by)
         {
             var elements = container.FindElements(by);
             return elements;

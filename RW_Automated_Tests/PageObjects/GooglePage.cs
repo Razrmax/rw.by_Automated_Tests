@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium;
+﻿using System.Threading;
+using OpenQA.Selenium;
 using RW_Automated_Tests.Helpers;
 using SeleniumExtras.PageObjects;
 
@@ -24,6 +25,9 @@ namespace RW_Automated_Tests.PageObjects
         [FindsBy(How = How.Id, Using = "search")]
         private IWebElement ResultsPanel { get; set; }
 
+        [FindsBy(How = How.ClassName, Using = "copyright")]
+        private IWebElement CopyrightPanel { get; set; }
+
         private PageMethods PageMethods { get; }
 
         public void Navigate(string url)
@@ -38,12 +42,12 @@ namespace RW_Automated_Tests.PageObjects
 
         public void ClickFirstLink()
         {
-            PageMethods.ClickLink(By.XPath("(//h3)[1]/../../a"), ResultsPanel);
+            PageMethods.ClickLink(Driver, By.XPath("(//h3)[1]/../../a"), ResultsPanel);
         }
 
         public bool PageIsLoaded(string url)
         {
-            var elementIsLoaded = PageMethods.IsUrlCorrect(url, Driver);
+            var elementIsLoaded = PageMethods.PageIsLoaded(Driver, CopyrightPanel);
             return elementIsLoaded;
         }
     }
