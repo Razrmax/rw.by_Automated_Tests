@@ -16,7 +16,7 @@ namespace RW_Automated_Tests.PageObjects
 
         private IWebDriver Driver { get; }
 
-        [FindsBy(How = How.XPath, Using = "//input[@class='gLFyf gsfi']")]
+        [FindsBy(How = How.XPath, Using = "//input[@class='gLFyf']")]
         private IWebElement SearchInput { get; set; }
 
         [FindsBy(How = How.XPath, Using = "//div[@class='lJ9FBc']//input[@name='btnK']")]

@@ -39,8 +39,8 @@ namespace RW_Automated_Tests.Tests
             var currentPage = new RailwayMainPage(_driver);
             currentPage.Navigate(_baseUrl);
             var _topIndexMenuButtonsNames = new HashSet<string>
-                {"press center", "tickets", "passenger services", "freight", "corporate"};
-            var _copyrightText = "© 2021 Belarusian Railway";
+                {"press center", "passenger services", "freight", "corporate", "contacts"};
+            var _copyrightText = "© 2023 Belarusian Railway";
             //Assert
             Assert.IsTrue(currentPage.SwitchLanguage("ENG"));
             Assert.IsTrue(currentPage.NewsArticlesAreDisplayed(4));

@@ -20,23 +20,23 @@ namespace RW_Automated_Tests.Helpers
 
             switch (browser)
             {
-                case "IE":
-                    var edgeOptions = new EdgeOptions();
-                    edgeOptions.UseChromium = true;
-                    driver = new EdgeDriver(edgeOptions);
-                    break;
-                case "Firefox":
-                    var firefoxOptions = new FirefoxOptions();
-                    firefoxOptions.AcceptInsecureCertificates = true;
-                    var geckoService = FirefoxDriverService.CreateDefaultService();
-                    geckoService.Host = "::1";
-                    driver = new FirefoxDriver(firefoxOptions);
-                    break;
-                case "Opera":
-                    var operaOptions = new OperaOptions();
-                    operaOptions.AcceptInsecureCertificates = true;
-                    driver = new OperaDriver(operaOptions);
-                    break;
+                //case "IE":
+                //    var edgeOptions = new EdgeOptions();
+                //    edgeOptions.UseChromium = true;
+                //    driver = new EdgeDriver(edgeOptions);
+                //    break;
+                //case "Firefox":
+                //    var firefoxOptions = new FirefoxOptions();
+                //    firefoxOptions.AcceptInsecureCertificates = true;
+                //    var geckoService = FirefoxDriverService.CreateDefaultService();
+                //    geckoService.Host = "::1";
+                //    driver = new FirefoxDriver(firefoxOptions);
+                //    break;
+                //case "Opera":
+                //    var operaOptions = new OperaOptions();
+                //    operaOptions.AcceptInsecureCertificates = true;
+                //    driver = new OperaDriver(operaOptions);
+                //    break;
                 default:
                     var chromeOptions = new ChromeOptions();
                     driver = new ChromeDriver(chromeOptions);

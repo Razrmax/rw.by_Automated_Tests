@@ -66,7 +66,7 @@ namespace RW_Automated_Tests.Helpers
         }
 
         /// <summary>
-        ///     Verifies that the text at elements location matches the required values.
+        /// Verifies that the text at elements location matches the required values.
         /// </summary>
         /// <param name="textToMatch">Collection of text that is required to match</param>
         /// <param name="elementsLocation">Location of the elements which must match</param>
