@@ -11,7 +11,6 @@ using RW_Automated_Tests.PageObjects;
 namespace RW_Automated_Tests.Tests
 {
     [TestFixture]
-    [Parallelizable]
     public class GoogleTests
     {
         private string _baseUrl;

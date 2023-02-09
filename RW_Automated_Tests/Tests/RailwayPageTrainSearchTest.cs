@@ -10,7 +10,7 @@ using RW_Automated_Tests.PageObjects;
 
 namespace RW_Automated_Tests.Tests
 {
-    [TestFixture][Parallelizable]
+    [TestFixture]
     class RailwayPageTrainSearchTest
     {
         private string _baseUrl = @"https:\\www.rw.by";
